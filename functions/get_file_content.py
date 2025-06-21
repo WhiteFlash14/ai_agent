@@ -1,4 +1,5 @@
 import os 
+from google.genai import types
 
 def get_file_content(working_directory,file_path):
     base_path = os.path.abspath(working_directory)
@@ -23,3 +24,18 @@ def get_file_content(working_directory,file_path):
 
     except Exception as e :
            return f"Error listing files: {e}"
+    
+
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description="Reads the content of a specified file (up to 10,000 characters) within the permitted working directory. Returns an error if the file is outside the working directory, does not exist, or is not a regular file. If the file is longer than 10,000 characters, the output is truncated and a note is appended.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The path to the file to read, relative to the working directory.",
+            ),
+        },
+    ),
+)

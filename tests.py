@@ -47,7 +47,8 @@ def test():
     # print(result)
 
     run_python_file("calculator", "main.py")
-    run_python_file("calculator", "tests.py")
+    result = run_python_file("calculator", "tests.py")
+    print(result)
     result = run_python_file("calculator", "../main.py") 
     print(result)
     result = run_python_file("calculator", "nonexistent.py")

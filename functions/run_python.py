@@ -19,25 +19,21 @@ def run_python_file(working_directory, file_path):
     #        return "No output produced"
     # except subprocess.CalledProcessError as e:
     #     print(f"Process exited with code {e.returncode}")
-        output = []
+        output = ""
         if result.stdout:
-            output.append(f"STDOUT:\n{result.stdout}")
+            output+=(f"STDOUT:\n{result.stdout}")
         if result.stderr:
-            output.append(f"STDERR:\n{result.stderr}")
+            output+=(f"STDERR:\n{result.stderr}")
 
         if result.returncode != 0:
-            output.append(f"Process exited with code {result.returncode}")
+            output+=(f"Process exited with code {result.returncode}")
 
-        return "\n".join(output) if output else "No output produced."
+        return output if output else "No output produced."      #"\n".join(output)
 
         
     except Exception as e:
         return f"Error: executing Python file: {e}"
     
-
-
-
-
 
 schema_run_python_file = types.FunctionDeclaration(
     name="run_python_file",

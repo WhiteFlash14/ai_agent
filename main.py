@@ -53,53 +53,69 @@ def generate_response(client, messages, verbosity):
     - Write or overwrite files
     
     All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
+    The working directory is set to ./calculator so if user asks something related to calculator you need to look into the files of that directory accordingly
     """
-
-
-    response = client.models.generate_content(
-        model='gemini-2.0-flash-001',
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions],system_instruction=system_prompt)
-    )
     
+    i = 0
 
+    while i < 20:
+        i+=1
+        response = client.models.generate_content(
+            model='gemini-2.0-flash-001',
+            contents=messages,
+            config=types.GenerateContentConfig(
+                tools=[available_functions],system_instruction=system_prompt)
+        )
+        
+    
+        
+        
+        for i in range(min(len(response.candidates), 20)):
+            if response.candidates[i]:
+                messages.append(response.candidates[i].content)
+        
     
     
-    for i in range(min(len(response.candidates), 20)):
-        if response.candidates[i]:
-            messages.append(response.candidates[i].content)
     
-
-
-
-
-    # if response.function_calls != None:
-    #     # print(response.function_calls[0])
-    #     print(f"Calling function: {response.function_calls[0].name}({response.function_calls[0].args})")
-   
-
-    if verbosity == True:
-         print("Prompt tokens:", response.usage_metadata.prompt_token_count)
-         print("Response tokens:", response.usage_metadata.candidates_token_count)
-
-    # print("Response:")
-    # print(response.text)
-
-    if not response.function_calls:
-        return response.text
     
-    function_call_result=[]
+        # if response.function_calls != None:
+        #     # print(response.function_calls[0])
+        #     print(f"Calling function: {response.function_calls[0].name}({response.function_calls[0].args})")
+       
+    
+        if verbosity == True:
+             print("Prompt tokens:", response.usage_metadata.prompt_token_count)
+             print("Response tokens:", response.usage_metadata.candidates_token_count)
+    
+        # print("Response:")
+        # print(response.text)
+    
+        if not response.function_calls:
+            print("Response:")
+            print(response.text)
+            break
+        
+        # function_call_result=[]
+    
+        for function_call_part in response.function_calls:
+          
+          if verbosity:
+             
+             print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+          
+          result = call_function(function_call_part,verbosity)
 
-    for function_call_part in response.function_calls:
-        #print(f"Calling function: {function_call_part.name}({function_call_part.args})")
-      result = call_function(function_call_part,verbosity)
-      if not result.parts[0].function_response:
-          raise Exception("empty function call result")
-      if verbosity == True:
-          print(f"-> {result.parts[0].function_response.response}")
-      messages.append(result)   
-
+          if not result.parts[0].function_response:
+              raise Exception("empty function call result")
+          
+          if verbosity == True:
+              print(f"-> {result.parts[0].function_response.response}")
+          
+          
+          messages.append(result)   
+    
+    if i >= 20:
+        print(f"\nReached maximum iterations (20). Agent may not have completed the task.")
 
     
 

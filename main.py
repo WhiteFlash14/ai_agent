@@ -62,6 +62,17 @@ def generate_response(client, messages, verbosity):
         config=types.GenerateContentConfig(
             tools=[available_functions],system_instruction=system_prompt)
     )
+    
+
+    
+    
+    for i in range(min(len(response.candidates), 20)):
+        if response.candidates[i]:
+            messages.append(response.candidates[i].content)
+    
+
+
+
 
     # if response.function_calls != None:
     #     # print(response.function_calls[0])
@@ -87,6 +98,7 @@ def generate_response(client, messages, verbosity):
           raise Exception("empty function call result")
       if verbosity == True:
           print(f"-> {result.parts[0].function_response.response}")
+      messages.append(result)   
 
 
     
